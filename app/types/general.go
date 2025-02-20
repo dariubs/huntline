@@ -6,6 +6,7 @@ type General struct {
 	Logo    string
 	Favicon string
 	CDN     string
+	URL     string
 
 	GitHub string
 	X      string
