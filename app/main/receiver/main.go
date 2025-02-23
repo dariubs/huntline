@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/dariubs/go-producthunt"
@@ -25,7 +27,8 @@ func getYesterday() string {
 	return yesterday.Format("2006-01-02")
 }
 
-func runAtScheduledTime(task func()) {
+// runAtScheduledTime now accepts hour and minute parameters to set the task's schedule.
+func runAtScheduledTime(task func(), hour, minute int) {
 	loc, err := time.LoadLocation("America/Los_Angeles")
 	if err != nil {
 		log.Fatalf("Failed to load timezone: %v", err)
@@ -33,21 +36,21 @@ func runAtScheduledTime(task func()) {
 
 	for {
 		now := time.Now().In(loc)
-		nextRun := time.Date(now.Year(), now.Month(), now.Day(), 0, 30, 0, 0, loc)
+		nextRun := time.Date(now.Year(), now.Month(), now.Day(), hour, minute, 0, 0, loc)
 		if now.After(nextRun) {
 			nextRun = nextRun.Add(24 * time.Hour)
 		}
-		durationUntilNextRun := time.Until(nextRun)
 		log.Printf("Next run scheduled at: %s (PST)", nextRun)
-
-		time.Sleep(durationUntilNextRun)
+		time.Sleep(time.Until(nextRun))
 		task()
 	}
 }
 
 func main() {
-	runNow := flag.Bool("run-now", false, "Run the task immediately before starting the scheduler")
+	runNow := flag.Bool("run-now", true, "Run the task immediately before starting the scheduler")
 	dateParam := flag.String("date", "", "Date in format YYYY-MM-DD to fetch data (overrides default 'yesterday')")
+	repeatable := flag.Bool("repeat", false, "Set task to run repeatedly according to the schedule (default true)")
+	schedule := flag.String("schedule", "00:30", "Schedule time in 24hr format (HH:MM) when the task should run (default 00:30)")
 	flag.Parse()
 
 	if *dateParam != "" {
@@ -56,7 +59,20 @@ func main() {
 		}
 	}
 
-	err := godotenv.Load()
+	parts := strings.Split(*schedule, ":")
+	if len(parts) != 2 {
+		log.Fatalf("Invalid schedule time format: expected HH:MM")
+	}
+	hour, err := strconv.Atoi(parts[0])
+	if err != nil {
+		log.Fatalf("Invalid hour in schedule time: %v", err)
+	}
+	minute, err := strconv.Atoi(parts[1])
+	if err != nil {
+		log.Fatalf("Invalid minute in schedule time: %v", err)
+	}
+
+	err = godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
@@ -107,9 +123,12 @@ func main() {
 		}
 	}
 
-	if *runNow {
+	if *repeatable {
+		if *runNow {
+			task()
+		}
+		runAtScheduledTime(task, hour, minute)
+	} else {
 		task()
 	}
-
-	runAtScheduledTime(task)
 }
