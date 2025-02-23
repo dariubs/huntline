@@ -46,9 +46,15 @@ func runAtScheduledTime(task func()) {
 }
 
 func main() {
-	// Define and parse command-line flag.
 	runNow := flag.Bool("run-now", false, "Run the task immediately before starting the scheduler")
+	dateParam := flag.String("date", "", "Date in format YYYY-MM-DD to fetch data (overrides default 'yesterday')")
 	flag.Parse()
+
+	if *dateParam != "" {
+		if _, err := time.Parse("2006-01-02", *dateParam); err != nil {
+			log.Fatalf("Invalid date format for -date flag. Expected YYYY-MM-DD: %v", err)
+		}
+	}
 
 	err := godotenv.Load()
 	if err != nil {
@@ -64,7 +70,18 @@ func main() {
 	client := producthunt.ProductHunt{APIKey: apiKey}
 
 	task := func() {
-		date := getYesterday()
+		var date string
+		if *dateParam != "" {
+			date = *dateParam
+		} else {
+			date = getYesterday()
+		}
+
+		parsedDate, err := time.Parse("2006-01-02", date)
+		if err != nil {
+			log.Fatalf("Error parsing date %s: %v", date, err)
+		}
+
 		products, err := client.GetProductsByRankByDate(date, 5)
 		if err != nil {
 			log.Fatalf("Error fetching products for date %s: %v", date, err)
@@ -73,13 +90,14 @@ func main() {
 		fmt.Printf("Top Products on %s:\n", date)
 		for i, product := range products {
 			fmt.Printf("ID: %s\nName: %s\nTagline: %s\nWebsite: %s\nRank: %d\n\n",
-				product.ID, product.Name, product.Tagline, product.Website, i)
+				product.ID, product.Name, product.Tagline, product.Website, i+1)
 
 			pdc := model.Product{
 				Name:    product.Name,
 				Tagline: product.Tagline,
 				URL:     product.Website,
-				Rank:    uint(i),
+				Rank:    uint(i) + 1,
+				Date:    parsedDate,
 			}
 
 			err = pdc.Save(dbs)
