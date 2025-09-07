@@ -1,13 +1,215 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>HuntLine</title>
-</head>
-<body>
-    <h1>
-        HuntLine!
-    </h1>
-</body>
+    <!-- Tailwind CSS CDN (with line-clamp plugin enabled) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              phorange: "#DA552F",
+              background: "#1e1e1e",
+              surface: "#2f2b3a",
+              textLight: "#EEEEEE"
+            },
+            fontFamily: {
+              sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', '"Helvetica Neue"', 'Arial', 'sans-serif']
+            }
+          }
+        },
+        plugins: [tailwindcssLineClamp],
+      }
+    </script>
+    <!-- Alpine.js for mobile menu toggling -->
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <style>
+      /* Fallback styles */
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      }
+      h1, .navbar-brand, h2 {
+        font-weight: 700;
+      }
+    </style>
+  </head>
+  <body class="bg-background text-textLight">
+    <!-- Navbar -->
+    <nav class="bg-surface" x-data="{ open: false }">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          <a href="#" class="navbar-brand text-xl text-textLight">
+            ProductHunt Directory
+          </a>
+          <!-- Mobile menu button -->
+          <div class="sm:hidden">
+            <button
+              type="button"
+              @click="open = !open"
+              class="text-textLight focus:outline-none"
+              aria-label="Toggle navigation"
+            >
+              <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  x-show="!open"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+                <path
+                  x-show="open"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+          <!-- Desktop Menu -->
+          <div class="hidden sm:flex sm:items-center sm:space-x-4">
+            <a href="#" class="hover:text-phorange transition">Timeline</a>
+            <form class="flex items-center">
+              <input
+                type="search"
+                placeholder="Search"
+                aria-label="Search"
+                class="px-2 py-1 rounded text-black focus:outline-none"
+              />
+              <button type="submit" class="ml-2 px-3 py-1 border border-phorange rounded text-phorange hover:bg-phorange hover:text-white transition">
+                Search
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+      <!-- Mobile Menu -->
+      <div class="sm:hidden" x-show="open" x-transition @click.outside="open = false">
+        <div class="px-2 pt-2 pb-3 space-y-1 bg-surface">
+          <a href="#" class="block px-3 py-2 rounded-md text-base font-medium hover:text-phorange">Timeline</a>
+          <form class="flex items-center px-3">
+            <input
+              type="search"
+              placeholder="Search"
+              aria-label="Search"
+              class="flex-1 px-2 py-1 rounded text-black focus:outline-none"
+            />
+            <button type="submit" class="ml-2 px-3 py-1 border border-phorange rounded text-phorange hover:bg-phorange hover:text-white transition">
+              Search
+            </button>
+          </form>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 py-6">
+      <h1 class="text-center text-3xl my-6">ProductHunt Timeline!</h1>
+      <div class="space-y-12">
+        <!-- Timeline Section: Today -->
+        <section>
+          <h2 class="text-2xl mb-4">→ Today</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Card Start -->
+            <div class="relative bg-surface rounded shadow overflow-hidden p-4 flex items-center">
+              <span class="absolute top-2 right-2 bg-phorange text-gray-900 px-2 py-1 text-xs font-bold rounded">1</span>
+              <!-- Fixed-size image container -->
+              <div class="flex-shrink-0">
+                <img src="https://www.google.com/s2/favicons?domain=altern.ai&sz=16" alt="Altern Favicon" class="w-6 h-6" />
+              </div>
+              <!-- Text content -->
+              <div class="ml-3">
+                <h6 class="text-sm font-bold line-clamp-1">
+                  <a href="https://altern.ai" class="hover:underline hover:text-phorange">Altern</a>
+                </h6>
+                <p class="text-xs line-clamp-2">Curated list of ai tools</p>
+              </div>
+            </div>
+            <!-- Repeat card for additional entries -->
+            <div class="relative bg-surface rounded shadow overflow-hidden p-4 flex items-center">
+              <span class="absolute top-2 right-2 bg-phorange text-gray-900 px-2 py-1 text-xs font-bold rounded">2</span>
+              <div class="flex-shrink-0">
+                <img src="https://www.google.com/s2/favicons?domain=altern.ai&sz=16" alt="Altern Favicon" class="w-6 h-6" />
+              </div>
+              <div class="ml-3">
+                <h6 class="text-sm font-bold line-clamp-1">
+                  <a href="https://altern.ai" class="hover:underline hover:text-phorange">Altern</a>
+                </h6>
+                <p class="text-xs line-clamp-2">Curated list of ai tools</p>
+              </div>
+            </div>
+            <div class="relative bg-surface rounded shadow overflow-hidden p-4 flex items-center">
+              <span class="absolute top-2 right-2 bg-phorange text-gray-900 px-2 py-1 text-xs font-bold rounded">3</span>
+              <div class="flex-shrink-0">
+                <img src="https://www.google.com/s2/favicons?domain=altern.ai&sz=16" alt="Altern Favicon" class="w-6 h-6" />
+              </div>
+              <div class="ml-3">
+                <h6 class="text-sm font-bold line-clamp-1">
+                  <a href="https://altern.ai" class="hover:underline hover:text-phorange">Altern</a>
+                </h6>
+                <p class="text-xs line-clamp-2">Curated list of ai tools</p>
+              </div>
+            </div>
+            <div class="relative bg-surface rounded shadow overflow-hidden p-4 flex items-center">
+              <span class="absolute top-2 right-2 bg-phorange text-gray-900 px-2 py-1 text-xs font-bold rounded">4</span>
+              <div class="flex-shrink-0">
+                <img src="https://www.google.com/s2/favicons?domain=altern.ai&sz=16" alt="Altern Favicon" class="w-6 h-6" />
+              </div>
+              <div class="ml-3">
+                <h6 class="text-sm font-bold line-clamp-1">
+                  <a href="https://altern.ai" class="hover:underline hover:text-phorange">Altern</a>
+                </h6>
+                <p class="text-xs line-clamp-2">Curated list of ai tools</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Timeline Section: Yesterday -->
+        <section>
+          <h2 class="text-2xl mb-4">→ Yesterday</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="relative bg-surface rounded shadow overflow-hidden p-4 flex items-center">
+              <span class="absolute top-2 right-2 bg-phorange text-gray-900 px-2 py-1 text-xs font-bold rounded">1</span>
+              <div class="flex-shrink-0">
+                <img src="https://www.google.com/s2/favicons?domain=altern.ai&sz=32" alt="Altern Favicon" class="w-6 h-6" />
+              </div>
+              <div class="ml-3">
+                <h6 class="text-sm font-bold line-clamp-1">
+                  <a href="https://altern.ai" class="hover:underline hover:text-phorange">Altern</a>
+                </h6>
+                <p class="text-xs line-clamp-2">Curated list of ai tools</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Timeline Section: Day Before Yesterday -->
+        <section>
+          <h2 class="text-2xl mb-4">→ Day Before Yesterday</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="relative bg-surface rounded shadow overflow-hidden p-4 flex items-center">
+              <span class="absolute top-2 right-2 bg-phorange text-gray-900 px-2 py-1 text-xs font-bold rounded">1</span>
+              <div class="flex-shrink-0">
+                <img src="https://www.google.com/s2/favicons?domain=altern.ai&sz=16" alt="Altern Favicon" class="w-6 h-6" />
+              </div>
+              <div class="ml-3">
+                <h6 class="text-sm font-bold line-clamp-1">
+                  <a href="https://altern.ai" class="hover:underline hover:text-phorange">Altern</a>
+                </h6>
+                <p class="text-xs line-clamp-2">Curated list of ai tools</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </body>
 </html>
