@@ -19,6 +19,7 @@ func init() {
 		log.Fatal("Error loading .env file")
 	}
 
+	// Use San Francisco timezone (Pacific Time) for database connections
 	dsn := fmt.Sprintf("user=%s password=%s dbname=%s host=%s port=%s sslmode=disable TimeZone=America/Los_Angeles",
 		os.Getenv("PG_USER"),
 		os.Getenv("PG_PASS"),

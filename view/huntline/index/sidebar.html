@@ -1,0 +1,37 @@
+<aside class="lg:w-64 flex-shrink-0">
+  <div class="sticky top-24">
+    <nav class="bg-white dark:bg-[#2d2d2d] border border-[#EEEEEE] dark:border-[#404040] rounded-xl p-4 space-y-1">
+      <a href="/" class="flex items-center gap-3 px-3 py-2 {{if eq .currentPage "timeline"}}text-[#DC5F00] font-medium bg-[#F9F9F9] dark:bg-[#404040]{{else}}text-[#686D76] dark:text-[#d4d4d4] hover:text-[#373A40] dark:hover:text-[#f5f5f5] hover:bg-[#F9F9F9] dark:hover:bg-[#404040]{{end}} rounded-md transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span>Timeline</span>
+      </a>
+      <a href="/archive" class="flex items-center gap-3 px-3 py-2 {{if eq .currentPage "archive"}}text-[#DC5F00] font-medium bg-[#F9F9F9] dark:bg-[#404040]{{else}}text-[#686D76] dark:text-[#d4d4d4] hover:text-[#373A40] dark:hover:text-[#f5f5f5] hover:bg-[#F9F9F9] dark:hover:bg-[#404040]{{end}} rounded-md transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+        </svg>
+        <span>Archive</span>
+      </a>
+      <a href="/best/month" class="flex items-center gap-3 px-3 py-2 {{if eq .currentPage "best-month"}}text-[#DC5F00] font-medium bg-[#F9F9F9] dark:bg-[#404040]{{else}}text-[#686D76] dark:text-[#d4d4d4] hover:text-[#373A40] dark:hover:text-[#f5f5f5] hover:bg-[#F9F9F9] dark:hover:bg-[#404040]{{end}} rounded-md transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        </svg>
+        <span>Best of Month</span>
+      </a>
+      <a href="/best/week" class="flex items-center gap-3 px-3 py-2 {{if eq .currentPage "best-week"}}text-[#DC5F00] font-medium bg-[#F9F9F9] dark:bg-[#404040]{{else}}text-[#686D76] dark:text-[#d4d4d4] hover:text-[#373A40] dark:hover:text-[#f5f5f5] hover:bg-[#F9F9F9] dark:hover:bg-[#404040]{{end}} rounded-md transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        <span>Best of Week</span>
+      </a>
+      <a href="/platforms" class="flex items-center gap-3 px-3 py-2 {{if eq .currentPage "platforms"}}text-[#DC5F00] font-medium bg-[#F9F9F9] dark:bg-[#404040]{{else}}text-[#686D76] dark:text-[#d4d4d4] hover:text-[#373A40] dark:hover:text-[#f5f5f5] hover:bg-[#F9F9F9] dark:hover:bg-[#404040]{{end}} rounded-md transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+        </svg>
+        <span>Platforms</span>
+      </a>
+    </nav>
+  </div>
+</aside>
+

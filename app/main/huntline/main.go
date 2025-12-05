@@ -46,7 +46,16 @@ func main() {
 	router.LoadHTMLGlob("view/huntline/**/*")
 
 	router.GET("/", huntline.IndexHandler(dbs, gd))
+	router.GET("/api/timeline", huntline.IndexAPIHandler(dbs, gd))
+	router.GET("/archive", huntline.ArchiveHandler(dbs, gd))
+	router.GET("/best/month", huntline.BestMonthHandler(dbs, gd))
+	router.GET("/best/week", huntline.BestWeekHandler(dbs, gd))
+	router.GET("/platforms", huntline.PlatformsHandler(dbs, gd))
 
-	router.Run(fmt.Sprintf("0.0.0.0:%s", os.Getenv("HL_PORT")))
+	port := os.Getenv("HL_PORT")
+	if port == "" {
+		port = "8080"
+	}
+	router.Run(fmt.Sprintf("0.0.0.0:%s", port))
 
 }

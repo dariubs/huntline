@@ -9,25 +9,19 @@ import (
 	"gorm.io/gorm"
 )
 
-// PlatformProducts groups products by platform
-type PlatformProducts struct {
-	Platform string
-	Products []model.Product
-}
-
-func IndexHandler(db *gorm.DB, gd types.General) gin.HandlerFunc {
+func IndexAPIHandler(db *gorm.DB, gd types.General) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Get dates in San Francisco timezone (Pacific Time)
 		loc, err := time.LoadLocation("America/Los_Angeles")
 		if err != nil {
-			c.String(500, "Failed to load timezone")
+			c.JSON(500, gin.H{"error": "Failed to load timezone"})
 			return
 		}
 		now := time.Now().In(loc)
 		today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, loc)
 		yesterday := today.AddDate(0, 0, -1)
 		
-		// Get date parameter (format: YYYY-MM-DD) or use yesterday as default
+		// Get date parameter (format: YYYY-MM-DD) or use yesterday
 		dateParam := c.DefaultQuery("date", "")
 		var startDate, endDate time.Time
 		
@@ -37,20 +31,16 @@ func IndexHandler(db *gorm.DB, gd types.General) gin.HandlerFunc {
 				startDate = parsedDate
 				endDate = parsedDate
 			} else {
-				// On error, default to yesterday
 				startDate = yesterday
 				endDate = yesterday
 			}
 		} else {
 			// Default: show yesterday's products
-			// Redirect to include date parameter in URL for clarity
-			yesterdayStr := yesterday.Format("2006-01-02")
-			c.Redirect(302, "/?date="+yesterdayStr)
-			return
+			startDate = yesterday
+			endDate = yesterday
 		}
 		
 		// Query products grouped by platform for the date range
-		// Format dates as strings for PostgreSQL DATE field comparison
 		startDateStr := startDate.Format("2006-01-02")
 		endDateStr := endDate.Format("2006-01-02")
 		
@@ -63,20 +53,14 @@ func IndexHandler(db *gorm.DB, gd types.General) gin.HandlerFunc {
 		prevDay := startDate.AddDate(0, 0, -1)
 		nextDay := endDate.AddDate(0, 0, 1)
 		nextDayInFuture := nextDay.After(today)
+		
+		// Determine if showing yesterday
+		isYesterday := endDate.Format("2006-01-02") == yesterday.Format("2006-01-02")
 
 		// Group products by platform
 		platformMap := make(map[string][]model.Product)
 		for _, product := range allProducts {
 			platformMap[product.Platform] = append(platformMap[product.Platform], product)
-		}
-
-		// Convert to slice for template
-		var platformProducts []PlatformProducts
-		for platform, products := range platformMap {
-			platformProducts = append(platformProducts, PlatformProducts{
-				Platform: platform,
-				Products: products,
-			})
 		}
 
 		// Group products by date within each platform
@@ -92,21 +76,17 @@ func IndexHandler(db *gorm.DB, gd types.General) gin.HandlerFunc {
 		}
 		
 		var platformDataList []PlatformData
-		for _, pp := range platformProducts {
+		for platform, products := range platformMap {
 			// Group by date
 			dateMap := make(map[string][]model.Product)
-			for _, product := range pp.Products {
+			for _, product := range products {
 				dateStr := product.Date.Format("2006-01-02")
 				dateMap[dateStr] = append(dateMap[dateStr], product)
 			}
 			
 			var dateGroups []DateGroup
 			for dateStr, products := range dateMap {
-				parsedDate, err := time.ParseInLocation("2006-01-02", dateStr, loc)
-				if err != nil {
-					// Skip invalid dates
-					continue
-				}
+				parsedDate, _ := time.Parse("2006-01-02", dateStr)
 				dateGroups = append(dateGroups, DateGroup{
 					Date:     parsedDate,
 					DateStr:  dateStr,
@@ -115,24 +95,18 @@ func IndexHandler(db *gorm.DB, gd types.General) gin.HandlerFunc {
 			}
 			
 			platformDataList = append(platformDataList, PlatformData{
-				Platform:   pp.Platform,
+				Platform:   platform,
 				DateGroups: dateGroups,
 			})
 		}
 
-		// Determine if showing yesterday or a specific date
-		isYesterday := endDate.Format("2006-01-02") == yesterday.Format("2006-01-02")
-		
-		// Format date for display: "2 January 2006"
-		dateFormatted := endDate.Format("2 January 2006")
-		
-		c.HTML(200, "index.html", gin.H{
-			"gd":               gd,
+		// Return JSON response
+		c.JSON(200, gin.H{
 			"platforms":        platformDataList,
 			"todayStr":         today.Format("2006-01-02"),
 			"yesterdayStr":     yesterday.Format("2006-01-02"),
 			"currentDate":      endDate.Format("2006-01-02"),
-			"currentDateFormatted": dateFormatted,
+			"currentDateObj":   endDate.Format("2006-01-02"), // For JavaScript parsing
 			"isYesterday":      isYesterday,
 			"prevDay":          prevDay.Format("2006-01-02"),
 			"nextDay":          nextDay.Format("2006-01-02"),
@@ -142,3 +116,4 @@ func IndexHandler(db *gorm.DB, gd types.General) gin.HandlerFunc {
 		})
 	}
 }
+
