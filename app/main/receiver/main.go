@@ -19,14 +19,14 @@ import (
 
 var dbs *gorm.DB
 
-// getYesterday returns yesterday's date as a formatted string in San Francisco timezone (Pacific Time).
-func getYesterday() string {
+// getToday returns today's date as a formatted string in San Francisco timezone (Pacific Time).
+func getToday() string {
 	loc, err := time.LoadLocation("America/Los_Angeles")
 	if err != nil {
 		log.Fatalf("Failed to load timezone: %v", err)
 	}
-	yesterday := time.Now().In(loc).AddDate(0, 0, -1)
-	return yesterday.Format("2006-01-02")
+	today := time.Now().In(loc)
+	return today.Format("2006-01-02")
 }
 
 // runAtScheduledTime schedules a given task to run at a specified hour and minute (San Francisco timezone - Pacific Time).
@@ -49,12 +49,24 @@ func runAtScheduledTime(task func(), hour, minute int) {
 }
 
 // runTaskForDate executes the product fetching and persistence task for a given date and platform.
+// It fetches top 10 products, updates existing ones, and removes products that are no longer in top 10.
 func runTaskForDate(platformClient platform.LaunchPlatform, date string) {
 	products, err := platformClient.GetTopProducts(date, 10)
 	if err != nil {
 		log.Fatalf("Error fetching products for platform %s on date %s: %v", platformClient.GetName(), date, err)
 	}
 
+	// Get all existing products for this date and platform
+	var existingProducts []model.Product
+	dbs.Where("date = ? AND platform = ?", date, platformClient.GetName()).Find(&existingProducts)
+
+	// Create a map of fetched product names for quick lookup
+	fetchedProductNames := make(map[string]bool)
+	for _, product := range products {
+		fetchedProductNames[product.Name] = true
+	}
+
+	// Save or update fetched products
 	fmt.Printf("Top Products from %s on %s:\n", platformClient.GetName(), date)
 	for _, product := range products {
 		fmt.Printf("Name: %s\nTagline: %s\nWebsite: %s\nRank: %d\nPlatform: %s\n\n",
@@ -73,7 +85,19 @@ func runTaskForDate(platformClient platform.LaunchPlatform, date string) {
 
 		err = pdc.Save(dbs)
 		if err != nil {
-			log.Println(err)
+			log.Printf("Error saving product %s: %v", product.Name, err)
+		}
+	}
+
+	// Remove products that are no longer in top 10
+	for _, existingProduct := range existingProducts {
+		if !fetchedProductNames[existingProduct.Name] {
+			result := dbs.Delete(&existingProduct)
+			if result.Error != nil {
+				log.Printf("Error deleting product %s: %v", existingProduct.Name, result.Error)
+			} else {
+				fmt.Printf("Removed product %s (no longer in top 10)\n", existingProduct.Name)
+			}
 		}
 	}
 }
@@ -81,7 +105,7 @@ func runTaskForDate(platformClient platform.LaunchPlatform, date string) {
 func main() {
 	// Define command-line flags.
 	runNow := flag.Bool("run-now", true, "Run the task immediately before starting the scheduler")
-	dateParam := flag.String("date", "", "Date in format YYYY-MM-DD to fetch data (overrides default 'yesterday')")
+	dateParam := flag.String("date", "", "Date in format YYYY-MM-DD to fetch data (overrides default 'today')")
 	repeatable := flag.Bool("repeat", false, "Set task to run repeatedly according to the schedule (default true)")
 	schedule := flag.String("schedule", "00:30", "Schedule time in 24hr format (HH:MM) when the task should run (default 00:30)")
 	historical := flag.Bool("historical", false, "If set, run the task for every day from 2016-07-29 to the present day")
@@ -201,7 +225,7 @@ func main() {
 		if *dateParam != "" {
 			date = *dateParam
 		} else {
-			date = getYesterday()
+			date = getToday()
 		}
 		runTaskForDate(platformClient, date)
 	}

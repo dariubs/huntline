@@ -127,7 +127,7 @@
                 <a href="{{.URL}}" target="_blank" rel="noopener noreferrer" class="block bg-white border border-gray-200 p-3 hover:border-yellow hover:shadow transition-all duration-150 group">
                   <div class="flex items-center space-x-3">
                     <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-gray-50 overflow-hidden border border-gray-200">
-                      <img src="https://www.google.com/s2/favicons?domain={{.URL}}&sz=64" alt="{{.Name}} Favicon" class="w-full h-full object-contain p-1" />
+                      <img src="https://www.google.com/s2/favicons?domain={{extractDomain .URL}}&sz=64" alt="{{.Name}} Favicon" class="w-full h-full object-contain p-1" />
                     </div>
                     <div class="flex-1 min-w-0">
                       <div class="flex items-center justify-between">

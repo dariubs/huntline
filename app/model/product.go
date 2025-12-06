@@ -20,16 +20,31 @@ type Product struct {
 }
 
 func (product *Product) Save(db *gorm.DB) error {
-	product.Date = product.Date.Truncate(24 * time.Hour)
+	// Normalize date to midnight in San Francisco timezone to avoid timezone conversion issues
+	loc, err := time.LoadLocation("America/Los_Angeles")
+	if err == nil {
+		// Convert to PST/PDT timezone first, then normalize to midnight
+		dateInLoc := product.Date.In(loc)
+		product.Date = time.Date(dateInLoc.Year(), dateInLoc.Month(), dateInLoc.Day(), 0, 0, 0, 0, loc)
+	} else {
+		// Fallback: truncate to 24 hours if timezone loading fails
+		product.Date = product.Date.Truncate(24 * time.Hour)
+	}
 	
 	// Set default platform if not specified
 	if product.Platform == "" {
 		product.Platform = "producthunt"
 	}
 
-	err := db.Clauses(clause.OnConflict{
-		Columns:   []clause.Column{{Name: "name"}, {Name: "date"}, {Name: "platform"}}, // Conflict based on name, date, and platform
-		DoUpdates: clause.Assignments(map[string]interface{}{"rank": product.Rank}),
+	err = db.Clauses(clause.OnConflict{
+		Columns: []clause.Column{{Name: "name"}, {Name: "date"}, {Name: "platform"}}, // Conflict based on name, date, and platform
+		DoUpdates: clause.Assignments(map[string]interface{}{
+			"rank":        product.Rank,
+			"tagline":     product.Tagline,
+			"url":         product.URL,
+			"logo":        product.Logo,
+			"description": product.Description,
+		}),
 	}).Create(product).Error
 
 	if err != nil {
