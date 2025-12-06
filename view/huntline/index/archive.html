@@ -217,7 +217,7 @@
             <a href="{{.URL}}" target="_blank" rel="noopener noreferrer" 
                class="flex items-center justify-between group hover:bg-[#F9F9F9] dark:hover:bg-[#404040] p-2 rounded-md transition">
               <div class="flex items-center gap-2 flex-1 min-w-0">
-                <img src="https://www.google.com/s2/favicons?domain={{extractDomain .URL}}&sz=64" alt="{{.Name}}" 
+                <img src="https://www.google.com/s2/favicons?domain={{.URL}}&sz=64" alt="{{.Name}}" 
                      class="w-6 h-6 object-contain rounded-md bg-white dark:bg-[#2d2d2d] border border-[#EEEEEE] dark:border-[#404040] shadow-sm flex-shrink-0" />
                 <div class="flex-1 min-w-0">
                   <div class="text-sm font-medium text-[#DC5F00] group-hover:underline truncate">{{.Name}}</div>
